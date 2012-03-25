@@ -1,0 +1,47 @@
+name: ScavengerHunt
+version: 1.0.0
+authors: [Fireworks, Zonedabone]
+
+main: net.mysticrealms.fireworks.scavengerhunt.ScavengerHunt
+
+commands:
+  scavengerstart:
+    usage: /scavengerstart
+    description: Start scavenger event.
+    permission: scavengerhunt.start
+  scavengerstop:
+    usage: /scavengerstop
+    description: Stop scavenger event.
+    permission: scavengerhunt.stop
+  scavengeritems:
+    usage: /scavengeritems
+    description: List scavenger items.
+    permission: scavengerhunt.items
+  scavengerrewards:
+    usage: /scavengerrewards
+    description: List scavenger rewards.
+    permission: scavengerhunt.rewards
+  scavengerreload:
+    usage: /scavengerreload
+    description: Reload configuration.
+    permission: scavengerhunt.reload
+
+permissions:
+  scavengerhunt.start:
+    default: op
+    description: Grants ability to start scavenger event.
+  scavengerhunt.participate:
+    default: true
+    description: Grants ability to participate in scavenger event.
+  scavengerhunt.stop:
+    default: op
+    description: Grants ability to stop scavenger event.
+  scavengerhunt.items:
+    default: true
+    description: Grants ability to list scavenger items.
+  scavengerhunt.rewards:
+    default: true
+    description: Grants ability to list scavenger rewards.
+  scavengerhunt.reload:
+    default: op
+    description: Grants ability to reload config.
