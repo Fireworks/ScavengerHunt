@@ -35,6 +35,7 @@ public class ScavengerHunt extends JavaPlugin {
 
     public boolean loadConfig() {
 	
+	this.reloadConfig();
 	items.clear();
 	rewards.clear();
 	
