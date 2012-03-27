@@ -17,6 +17,8 @@ public class ScavengerHunt extends JavaPlugin {
     public Configuration config;
     public List<ItemStack> items = new ArrayList<ItemStack>();
     public List<ItemStack> rewards = new ArrayList<ItemStack>();
+    public int duration = 0;
+    public long end = 0;
 
     @Override
     public void onEnable() {
@@ -43,6 +45,11 @@ public class ScavengerHunt extends JavaPlugin {
 	    this.saveDefaultConfig();
 	}
 	config = this.getConfig();
+
+	if (config.isInt("duration"))
+	    duration = config.getInt("duration");
+	else
+	    return false;
 
 	if (config.isList("items")) {
 	    for (Object i : config.getStringList("items")) {
@@ -150,8 +157,12 @@ public class ScavengerHunt extends JavaPlugin {
     }
 
     public void runScavengerEvent() {
+	
 	this.getServer().broadcastMessage(
 		ChatColor.DARK_RED + "Scavenger Hunt is starting! Good luck!");
+	if(duration != 0){
+	    this.getServer().broadcastMessage(ChatColor.DARK_RED + "You have: " + ChatColor.GOLD + duration + " seconds!");
+	}
 	this.getServer().broadcastMessage(
 		ChatColor.DARK_RED + "You need to collect: ");
 	for (ItemStack i : items) {
@@ -159,6 +170,12 @@ public class ScavengerHunt extends JavaPlugin {
 		    ChatColor.GOLD + configToString(i));
 	}
 	isRunning = true;
+	
+	if(duration == 0){
+	    end = 0;
+	}else{
+	    end = duration*1000 + System.currentTimeMillis();
+	}
     }
 
     public String configToString(ItemStack item) {

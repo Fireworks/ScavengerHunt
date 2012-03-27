@@ -5,3 +5,6 @@ items:
 
 rewards:
   - 357 1
+
+# runs for x seconds ; 0 to run until winner
+duration: 0 
