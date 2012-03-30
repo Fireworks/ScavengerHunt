@@ -30,12 +30,8 @@ public class ScavengerHunt extends JavaPlugin {
 
     @Override
     public void onEnable() {
-	
-	if(!setupEconomy()){
-	    this.getLogger().severe("Vault not found - money reward will not be used.");
-	}else{
-	    this.getLogger().severe("Vault found and loaded.");
-	}
+
+	setupEconomy();
 
 	if (!loadConfig()) {
 	    this.getLogger().severe(
@@ -51,17 +47,21 @@ public class ScavengerHunt extends JavaPlugin {
     }
 
     private boolean setupEconomy() {
-	if (getServer().getPluginManager().getPlugin("Vault") == null){
-	    return false;
-	}
-	RegisteredServiceProvider<Economy> economyProvider = getServer()
-		.getServicesManager().getRegistration(
-			net.milkbowl.vault.economy.Economy.class);
-	if (economyProvider != null) {
-	    economy = economyProvider.getProvider();
-	}
+	if (this.getServer().getPluginManager().getPlugin("Vault") != null) {
+	    RegisteredServiceProvider<Economy> economyProvider = getServer()
+		    .getServicesManager().getRegistration(
+			    net.milkbowl.vault.economy.Economy.class);
+	    if (economyProvider != null) {
+		economy = economyProvider.getProvider();
+	    }
 
-	return (economy != null);
+	    this.getLogger().severe("Vault found and loaded.");
+	    return (economy != null);
+	}
+	economy = null;
+	this.getLogger().severe(
+		"Vault not found - money reward will not be used.");
+	return false;
     }
 
     public boolean loadConfig() {
@@ -77,6 +77,8 @@ public class ScavengerHunt extends JavaPlugin {
 
 	if (config.isDouble("money"))
 	    money = config.getDouble("money");
+	else if (config.isInt("money"))
+	    money = config.getInt("money");
 	else
 	    return false;
 
@@ -145,10 +147,10 @@ public class ScavengerHunt extends JavaPlugin {
     }
 
     public boolean isUsingMoney() {
-	if(this.money > 0 && setupEconomy())
+	if (this.money > 0)
 	    return true;
 	else
-	    return false;	    
+	    return false;
     }
 
     @Override

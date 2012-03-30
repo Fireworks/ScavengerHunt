@@ -6,9 +6,8 @@ items:
 rewards:
   - 357 1
 
-# runs for x seconds ; 0 to run until winner
+# Runs for x seconds ; 0 to run until winner
 duration: 0 
 
-# money awarded to winner (Must have Vault!)
-
+# Money awarded to winner (Must have Vault to use!)
 money: 0

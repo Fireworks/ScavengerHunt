@@ -49,8 +49,8 @@ public class ScavengerInventory implements Runnable {
 		    i.addItem(reward);
 		}
 		if(plugin.isUsingMoney()){
-		    plugin.getServer().broadcastMessage(ChatColor.GOLD + "" + plugin.money);
-		    plugin.economy.depositPlayer(p.getName(), plugin.money);
+		    plugin.getServer().broadcastMessage(ChatColor.GOLD + " * " + ScavengerHunt.economy.format(plugin.money));
+		    ScavengerHunt.economy.depositPlayer(p.getName(), plugin.money);
 		}
 		return;
 	    }
