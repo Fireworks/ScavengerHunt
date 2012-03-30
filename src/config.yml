@@ -8,3 +8,7 @@ rewards:
 
 # runs for x seconds ; 0 to run until winner
 duration: 0 
+
+# money awarded to winner (Must have Vault!)
+
+money: 0

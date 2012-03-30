@@ -1,6 +1,7 @@
 name: ScavengerHunt
-version: 1.1.0
+version: 1.1.2
 authors: [Fireworks, Zonedabone]
+softdepend: ['Vault']
 
 main: net.mysticrealms.fireworks.scavengerhunt.ScavengerHunt
 
