@@ -9,7 +9,11 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import net.milkbowl.vault.economy.Economy;
+import net.milkbowl.vault.permission.Permission;
 
 public class ScavengerHunt extends JavaPlugin {
 
@@ -18,13 +22,24 @@ public class ScavengerHunt extends JavaPlugin {
     public List<ItemStack> items = new ArrayList<ItemStack>();
     public List<ItemStack> rewards = new ArrayList<ItemStack>();
     public int duration = 0;
+    public double money = 0;
     public long end = 0;
+
+    public static Permission permission = null;
+    public static Economy economy = null;
 
     @Override
     public void onEnable() {
+	
+	if(!setupEconomy()){
+	    this.getLogger().severe("Vault not found - money reward will not be used.");
+	}else{
+	    this.getLogger().severe("Vault found and loaded.");
+	}
 
-	if(!loadConfig()){
-	    this.getLogger().severe("Something is wrong with the config! Disabling!");
+	if (!loadConfig()) {
+	    this.getLogger().severe(
+		    "Something is wrong with the config! Disabling!");
 	    this.setEnabled(false);
 	    return;
 	}
@@ -35,16 +50,35 @@ public class ScavengerHunt extends JavaPlugin {
 
     }
 
+    private boolean setupEconomy() {
+	if (getServer().getPluginManager().getPlugin("Vault") == null){
+	    return false;
+	}
+	RegisteredServiceProvider<Economy> economyProvider = getServer()
+		.getServicesManager().getRegistration(
+			net.milkbowl.vault.economy.Economy.class);
+	if (economyProvider != null) {
+	    economy = economyProvider.getProvider();
+	}
+
+	return (economy != null);
+    }
+
     public boolean loadConfig() {
-	
+
 	this.reloadConfig();
 	items.clear();
 	rewards.clear();
-	
+
 	if (!new File(this.getDataFolder(), "config.yml").exists()) {
 	    this.saveDefaultConfig();
 	}
 	config = this.getConfig();
+
+	if (config.isDouble("money"))
+	    money = config.getDouble("money");
+	else
+	    return false;
 
 	if (config.isInt("duration"))
 	    duration = config.getInt("duration");
@@ -110,6 +144,13 @@ public class ScavengerHunt extends JavaPlugin {
 	return true;
     }
 
+    public boolean isUsingMoney() {
+	if(this.money > 0 && setupEconomy())
+	    return true;
+	else
+	    return false;	    
+    }
+
     @Override
     public boolean onCommand(CommandSender sender, Command cmd,
 	    String commandLabel, String[] args) {
@@ -122,8 +163,8 @@ public class ScavengerHunt extends JavaPlugin {
 	    listScavengerEventItems(sender);
 	if (cmd.getName().equalsIgnoreCase("scavengerrewards"))
 	    listScavengerEventRewards(sender);
-	if (cmd.getName().equalsIgnoreCase("scavengerreload")){
-	    if(this.loadConfig())
+	if (cmd.getName().equalsIgnoreCase("scavengerreload")) {
+	    if (this.loadConfig())
 		sender.sendMessage(ChatColor.GOLD + "Config reloaded!");
 	    else
 		sender.sendMessage(ChatColor.GOLD + "Config failed to reload!");
@@ -157,11 +198,13 @@ public class ScavengerHunt extends JavaPlugin {
     }
 
     public void runScavengerEvent() {
-	
+
 	this.getServer().broadcastMessage(
 		ChatColor.DARK_RED + "Scavenger Hunt is starting! Good luck!");
-	if(duration != 0){
-	    this.getServer().broadcastMessage(ChatColor.DARK_RED + "You have: " + ChatColor.GOLD + duration + " seconds!");
+	if (duration != 0) {
+	    this.getServer().broadcastMessage(
+		    ChatColor.DARK_RED + "You have: " + ChatColor.GOLD
+			    + duration + " seconds!");
 	}
 	this.getServer().broadcastMessage(
 		ChatColor.DARK_RED + "You need to collect: ");
@@ -170,11 +213,11 @@ public class ScavengerHunt extends JavaPlugin {
 		    ChatColor.GOLD + configToString(i));
 	}
 	isRunning = true;
-	
-	if(duration == 0){
+
+	if (duration == 0) {
 	    end = 0;
-	}else{
-	    end = duration*1000 + System.currentTimeMillis();
+	} else {
+	    end = duration * 1000 + System.currentTimeMillis();
 	}
     }
 

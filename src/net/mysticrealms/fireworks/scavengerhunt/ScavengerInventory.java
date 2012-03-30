@@ -48,6 +48,10 @@ public class ScavengerInventory implements Runnable {
 			    ChatColor.GOLD + plugin.configToString(reward));
 		    i.addItem(reward);
 		}
+		if(plugin.isUsingMoney()){
+		    plugin.getServer().broadcastMessage(ChatColor.GOLD + "" + plugin.money);
+		    plugin.economy.depositPlayer(p.getName(), plugin.money);
+		}
 		return;
 	    }
 	}
