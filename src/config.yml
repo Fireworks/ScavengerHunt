@@ -11,3 +11,9 @@ duration: 0
 
 # Money awarded to winner (Must have Vault to use!)
 money: 0
+
+# Number of items for random item selection ; 0 to disable
+# X number of items will be selected from the items listed above
+# E.g. if 8 items listed, and numOfItems = 3, then 3 of those item/
+# amount pairs will be chosen and used.
+numOfItems: 0

@@ -31,7 +31,7 @@ public class ScavengerInventory implements Runnable {
 		
 	    Inventory i = p.getInventory();
 	    boolean hasItems = true;
-	    for (ItemStack item : plugin.items) {
+	    for (ItemStack item : plugin.currentItems) {
 		if (!i.contains(item.getType(), item.getAmount()))
 		    hasItems = false;
 	    }
