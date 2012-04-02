@@ -53,11 +53,11 @@ public class ScavengerHunt extends JavaPlugin {
 				economy = economyProvider.getProvider();
 			}
 
-			this.getLogger().severe("Vault found and loaded.");
+			this.getLogger().info("Vault found and loaded.");
 			return (economy != null);
 		}
 		economy = null;
-		this.getLogger().severe("Vault not found - money reward will not be used.");
+		this.getLogger().info("Vault not found - money reward will not be used.");
 		return false;
 	}
 
@@ -83,8 +83,8 @@ public class ScavengerHunt extends JavaPlugin {
 			duration = config.getInt("duration");
 		else
 			return false;
-		
-		if(config.isInt("numOfItems"))
+
+		if (config.isInt("numOfItems"))
 			numOfItems = config.getInt("numOfItems");
 		else
 			return false;
@@ -189,6 +189,8 @@ public class ScavengerHunt extends JavaPlugin {
 		for (ItemStack i : rewards) {
 			sender.sendMessage(ChatColor.GOLD + configToString(i));
 		}
+		if (this.isUsingMoney())
+			sender.sendMessage(ChatColor.GOLD + " * " + economy.format(money));
 
 	}
 
@@ -205,7 +207,6 @@ public class ScavengerHunt extends JavaPlugin {
 
 		for (ItemStack i : items) {
 			clone.add(i);
-			System.out.println(i);
 		}
 
 		Random r = new Random();
