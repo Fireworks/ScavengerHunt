@@ -176,7 +176,7 @@ public class ScavengerHunt extends JavaPlugin {
 	public void listScavengerEventItems(CommandSender sender) {
 		if (isRunning) {
 			sender.sendMessage(ChatColor.GOLD + "Current scavenger items: ");
-			for (ItemStack i : items) {
+			for (ItemStack i : currentItems) {
 				sender.sendMessage(ChatColor.GOLD + configToString(i));
 			}
 		} else {
