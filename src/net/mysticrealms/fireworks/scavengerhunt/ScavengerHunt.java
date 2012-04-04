@@ -2,19 +2,26 @@ package net.mysticrealms.fireworks.scavengerhunt;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
-
-import org.bukkit.ChatColor;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.Configuration;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.RegisteredServiceProvider;
-import org.bukkit.plugin.java.JavaPlugin;
+import java.util.concurrent.ConcurrentHashMap;
 
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
+
+import org.bukkit.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.Configuration;
+import org.bukkit.entity.EntityType;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.material.Dye;
+import org.bukkit.material.Wool;
+import org.bukkit.plugin.RegisteredServiceProvider;
+import org.bukkit.plugin.java.JavaPlugin;
 
 public class ScavengerHunt extends JavaPlugin {
 
@@ -23,6 +30,10 @@ public class ScavengerHunt extends JavaPlugin {
 	public List<ItemStack> currentItems = new ArrayList<ItemStack>();
 	public List<ItemStack> items = new ArrayList<ItemStack>();
 	public List<ItemStack> rewards = new ArrayList<ItemStack>();
+
+	public Map<String, Map<EntityType, Integer>> ofMaps = new ConcurrentHashMap<String, Map<EntityType, Integer>>();
+
+	public Map<EntityType, Integer> mobs = new HashMap<EntityType, Integer>();
 
 	public int numOfItems = 0;
 	public int duration = 0;
@@ -44,6 +55,7 @@ public class ScavengerHunt extends JavaPlugin {
 		}
 		this.getServer().getScheduler().scheduleSyncRepeatingTask(this, new ScavengerInventory(this), 0, 40);
 
+		this.getServer().getPluginManager().registerEvents(new ScavengerListener(this), this);
 	}
 
 	private boolean setupEconomy() {
@@ -66,11 +78,25 @@ public class ScavengerHunt extends JavaPlugin {
 		this.reloadConfig();
 		items.clear();
 		rewards.clear();
+		mobs.clear();
 
 		if (!new File(this.getDataFolder(), "config.yml").exists()) {
 			this.saveDefaultConfig();
 		}
 		config = this.getConfig();
+
+		if (config.isList("mobs")) {
+			for (String i : config.getStringList("mobs")) {
+				try {
+					final String[] parts = i.split(" ");
+					final int mobQuantity = Integer.parseInt(parts[1]);
+					final EntityType mobName = EntityType.fromName(parts[0]);
+					mobs.put(mobName, mobQuantity);
+				} catch (Exception e) {
+					return false;
+				}
+			}
+		}
 
 		if (config.isDouble("money"))
 			money = config.getDouble("money");
@@ -175,9 +201,18 @@ public class ScavengerHunt extends JavaPlugin {
 
 	public void listScavengerEventItems(CommandSender sender) {
 		if (isRunning) {
-			sender.sendMessage(ChatColor.GOLD + "Current scavenger items: ");
-			for (ItemStack i : currentItems) {
-				sender.sendMessage(ChatColor.GOLD + configToString(i));
+			if (!currentItems.isEmpty()) {
+				this.getServer().broadcastMessage(ChatColor.DARK_RED + "Current scavenger items: ");
+				for (ItemStack i : currentItems) {
+					sender.sendMessage(ChatColor.GOLD + configToString(i));
+				}
+			}
+
+			if (!mobs.isEmpty()) {
+				this.getServer().broadcastMessage(ChatColor.DARK_RED + "You need to kill: ");
+				for (Map.Entry<EntityType, Integer> entry : mobs.entrySet()) {
+					sender.sendMessage(ChatColor.GOLD + " * " + entry.getValue() + " " + entry.getKey().getName().toLowerCase().replace("_", " "));
+				}
 			}
 		} else {
 			sender.sendMessage(ChatColor.GOLD + "No scavenger event is currently running.");
@@ -202,6 +237,7 @@ public class ScavengerHunt extends JavaPlugin {
 	public void runScavengerEvent() {
 
 		this.currentItems.clear();
+		this.ofMaps.clear();
 
 		List<ItemStack> clone = new ArrayList<ItemStack>();
 
@@ -220,13 +256,24 @@ public class ScavengerHunt extends JavaPlugin {
 		}
 
 		this.getServer().broadcastMessage(ChatColor.DARK_RED + "Scavenger Hunt is starting! Good luck!");
+
 		if (duration != 0) {
 			this.getServer().broadcastMessage(ChatColor.DARK_RED + "You have: " + ChatColor.GOLD + duration + " seconds!");
 		}
-		this.getServer().broadcastMessage(ChatColor.DARK_RED + "You need to collect: ");
-		for (ItemStack i : currentItems) {
-			this.getServer().broadcastMessage(ChatColor.GOLD + configToString(i));
+		if (!currentItems.isEmpty()) {
+			this.getServer().broadcastMessage(ChatColor.DARK_RED + "You need to collect: ");
+			for (ItemStack i : currentItems) {
+				this.getServer().broadcastMessage(ChatColor.GOLD + configToString(i));
+			}
 		}
+
+		if (!mobs.isEmpty()) {
+			this.getServer().broadcastMessage(ChatColor.DARK_RED + "You need to kill: ");
+			for (Map.Entry<EntityType, Integer> entry : mobs.entrySet()) {
+				this.getServer().broadcastMessage(ChatColor.GOLD + " * " + entry.getValue() + " " + entry.getKey().getName().toLowerCase().replace("_", " "));
+			}
+		}
+
 		isRunning = true;
 
 		if (duration == 0) {
@@ -236,8 +283,33 @@ public class ScavengerHunt extends JavaPlugin {
 		}
 	}
 
+	public synchronized Map<EntityType, Integer> getMap(String s) {
+		Map<EntityType, Integer> map = ofMaps.get(s);
+
+		if (map == null) {
+			map = new ConcurrentHashMap<EntityType, Integer>();
+			for (EntityType e : EntityType.values()) {
+				map.put(e, 0);
+			}
+			ofMaps.put(s, map);
+		}
+
+		return map;
+
+	}
+
 	public String configToString(ItemStack item) {
 
-		return " * " + item.getAmount() + " " + item.getType().toString().toLowerCase().replace("_", " ");
+		return " * " + item.getAmount() + " " + itemFormatter(item).toLowerCase().replace("_", " ");
+	}
+	
+	public String itemFormatter(ItemStack item){
+		if (item.getType() == Material.WOOL){
+			return ((Wool)item.getData()).getColor().toString() + " wool";
+		}else if(item.getType() == Material.INK_SACK){
+			return ((Dye)item.getData()).getColor().toString() + " dye";		
+		}else{
+			return item.getType().toString();
+		}
 	}
 }

@@ -3,6 +3,10 @@
 items:
   - 4 10
 
+# Mob - Quantity
+mobs:
+  - pig 1
+
 rewards:
   - 357 1
 
