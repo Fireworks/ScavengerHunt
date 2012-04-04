@@ -189,6 +189,8 @@ public class ScavengerHunt extends JavaPlugin {
 			listScavengerEventItems(sender);
 		if (cmd.getName().equalsIgnoreCase("scavengerrewards"))
 			listScavengerEventRewards(sender);
+		if (cmd.getName().equalsIgnoreCase("scavengerhelp"))
+			listHelp(sender);
 		if (cmd.getName().equalsIgnoreCase("scavengerreload")) {
 			if (this.loadConfig())
 				sender.sendMessage(ChatColor.GOLD + "Config reloaded!");
@@ -197,6 +199,15 @@ public class ScavengerHunt extends JavaPlugin {
 		}
 
 		return true;
+	}
+	
+	public void listHelp(CommandSender sender){
+		sender.sendMessage(ChatColor.DARK_RED + "== Scavenger Help Guide ==");
+		sender.sendMessage(ChatColor.GOLD + " * /scavengerItems - List items/objectives for current scavenger event.");
+		sender.sendMessage(ChatColor.GOLD + " * /scavengerRewards - List rewards for the winner.");
+		sender.sendMessage(ChatColor.DARK_GREEN + " * /scavengerStart - Start a scavenger event.");
+		sender.sendMessage(ChatColor.DARK_GREEN + " * /scavengerStop - End current scavenger vent.");
+		sender.sendMessage(ChatColor.DARK_GREEN + " * /scavengerReload - Reload the config.");
 	}
 
 	public void listScavengerEventItems(CommandSender sender) {

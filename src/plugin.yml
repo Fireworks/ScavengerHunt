@@ -26,6 +26,9 @@ commands:
     usage: /scavengerreload
     description: Reload configuration.
     permission: scavengerhunt.reload
+  scavengerhelp:
+    usage: /scavengerhelp
+    description: Displays help menu.
 
 permissions:
   scavengerhunt.start:
