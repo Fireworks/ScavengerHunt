@@ -213,14 +213,14 @@ public class ScavengerHunt extends JavaPlugin {
 	public void listScavengerEventItems(CommandSender sender) {
 		if (isRunning) {
 			if (!currentItems.isEmpty()) {
-				this.getServer().broadcastMessage(ChatColor.DARK_RED + "Current scavenger items: ");
+				sender.sendMessage(ChatColor.DARK_RED + "Current scavenger items: ");
 				for (ItemStack i : currentItems) {
 					sender.sendMessage(ChatColor.GOLD + configToString(i));
 				}
 			}
 
 			if (!mobs.isEmpty()) {
-				this.getServer().broadcastMessage(ChatColor.DARK_RED + "You need to kill: ");
+				sender.sendMessage(ChatColor.DARK_RED + "You need to kill: ");
 				for (Map.Entry<EntityType, Integer> entry : mobs.entrySet()) {
 					sender.sendMessage(ChatColor.GOLD + " * " + entry.getValue() + " " + entry.getKey().getName().toLowerCase().replace("_", " "));
 				}
