@@ -86,9 +86,9 @@ public class ScavengerHunt extends JavaPlugin {
 		config = this.getConfig();
 
 		if (config.isList("mobs")) {
-			for (String i : config.getStringList("mobs")) {
+			for (Object i : config.getList("mobs", new ArrayList<String>())) {
 				try {
-					final String[] parts = i.split(" ");
+					final String[] parts = i.toString().split(" ");
 					final int mobQuantity = Integer.parseInt(parts[1]);
 					final EntityType mobName = EntityType.fromName(parts[0]);
 					mobs.put(mobName, mobQuantity);
@@ -116,7 +116,7 @@ public class ScavengerHunt extends JavaPlugin {
 			return false;
 
 		if (config.isList("items")) {
-			for (Object i : config.getStringList("items")) {
+			for (Object i : config.getList("items", new ArrayList<String>())) {
 				if (i instanceof String) {
 					final String[] parts = ((String) i).split(" ");
 					final int[] intParts = new int[parts.length];
@@ -143,7 +143,7 @@ public class ScavengerHunt extends JavaPlugin {
 		}
 
 		if (config.isList("rewards")) {
-			for (Object i : config.getStringList("rewards")) {
+			for (Object i : config.getList("rewards", new ArrayList<String>())) {
 				if (i instanceof String) {
 					final String[] parts = ((String) i).split(" ");
 					final int[] intParts = new int[parts.length];
