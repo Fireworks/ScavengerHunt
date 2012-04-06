@@ -1,6 +1,7 @@
 package net.mysticrealms.fireworks.scavengerhunt;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -46,6 +47,7 @@ public class ScavengerHunt extends JavaPlugin {
 	@Override
 	public void onEnable() {
 
+		startMetrics();
 		setupEconomy();
 
 		if (!loadConfig()) {
@@ -56,6 +58,16 @@ public class ScavengerHunt extends JavaPlugin {
 		this.getServer().getScheduler().scheduleSyncRepeatingTask(this, new ScavengerInventory(this), 0, 40);
 
 		this.getServer().getPluginManager().registerEvents(new ScavengerListener(this), this);
+	}
+
+	public void startMetrics() {
+		try {
+			(new MetricsLite(this)).start();
+		} catch (IOException e) {
+			this.getLogger().warning("MetricsLite did not enable! Statistic usage disabled.");
+			e.printStackTrace();
+			return;
+		}
 	}
 
 	private boolean setupEconomy() {
@@ -200,8 +212,8 @@ public class ScavengerHunt extends JavaPlugin {
 
 		return true;
 	}
-	
-	public void listHelp(CommandSender sender){
+
+	public void listHelp(CommandSender sender) {
 		sender.sendMessage(ChatColor.DARK_RED + "== Scavenger Help Guide ==");
 		sender.sendMessage(ChatColor.GOLD + " * /scavengerItems - List items/objectives for current scavenger event.");
 		sender.sendMessage(ChatColor.GOLD + " * /scavengerRewards - List rewards for the winner.");
@@ -313,13 +325,13 @@ public class ScavengerHunt extends JavaPlugin {
 
 		return " * " + item.getAmount() + " " + itemFormatter(item).toLowerCase().replace("_", " ");
 	}
-	
-	public String itemFormatter(ItemStack item){
-		if (item.getType() == Material.WOOL){
-			return ((Wool)item.getData()).getColor().toString() + " wool";
-		}else if(item.getType() == Material.INK_SACK){
-			return ((Dye)item.getData()).getColor().toString() + " dye";		
-		}else{
+
+	public String itemFormatter(ItemStack item) {
+		if (item.getType() == Material.WOOL) {
+			return ((Wool) item.getData()).getColor().toString() + " wool";
+		} else if (item.getType() == Material.INK_SACK) {
+			return ((Dye) item.getData()).getColor().toString() + " dye";
+		} else {
 			return item.getType().toString();
 		}
 	}
