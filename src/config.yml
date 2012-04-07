@@ -3,9 +3,21 @@
 items:
   - 4 10
 
+# Number of items for random item selection ; 0 to disable
+# X number of items will be selected from the items listed above
+# E.g. if 8 items listed, and numOfItems = 3, then 3 of those item/
+# amount pairs will be chosen and used.
+numOfItems: 0
+
 # Mob - Quantity
 mobs:
   - pig 1
+  
+# Number of mobs for random item selection ; 0 to disable
+# X number of mobs will be selected from the mobs listed above
+# E.g. if 8 mobs listed, and numOfMobs = 3, then 3 of those item/
+# amount pairs will be chosen and used.
+numOfMobs: 0
 
 rewards:
   - 357 1
@@ -15,9 +27,3 @@ duration: 0
 
 # Money awarded to winner (Must have Vault to use!)
 money: 0
-
-# Number of items for random item selection ; 0 to disable
-# X number of items will be selected from the items listed above
-# E.g. if 8 items listed, and numOfItems = 3, then 3 of those item/
-# amount pairs will be chosen and used.
-numOfItems: 0
