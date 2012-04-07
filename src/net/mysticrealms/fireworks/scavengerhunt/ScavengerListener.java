@@ -12,13 +12,13 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 
 public class ScavengerListener implements Listener {
-
+	
 	private ScavengerHunt plugin;
-
+	
 	public ScavengerListener(ScavengerHunt instance) {
 		plugin = instance;
 	}
-
+	
 	@EventHandler
 	public void onEntityDeath(EntityDeathEvent event) {
 		EntityDamageEvent damageEvent = event.getEntity().getLastDamageCause();
@@ -37,13 +37,8 @@ public class ScavengerListener implements Listener {
 			} else {
 				return;
 			}
-
 			Map<EntityType, Integer> map = plugin.getMap(p.getName());
-
 			map.put(event.getEntity().getType(), map.get(event.getEntity().getType()) + 1);
-
 		}
-
 	}
-
 }
