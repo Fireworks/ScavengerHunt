@@ -295,7 +295,7 @@ public class ScavengerHunt extends JavaPlugin {
 			currentMobs.put(entry.getKey(), entry.getValue());
 		}
 		getServer().broadcastMessage(ChatColor.DARK_RED + "Scavenger Hunt is starting! Good luck!");
-		if (duration >= 0) {
+		if (duration > 0) {
 			getServer().broadcastMessage(ChatColor.DARK_RED + "You have: " + ChatColor.GOLD + duration + " seconds!");
 		}
 		if (!currentItems.isEmpty()) {
