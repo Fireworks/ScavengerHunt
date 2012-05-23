@@ -26,9 +26,15 @@ public class ScavengerInventory implements Runnable {
 			return;
 		}
 		for (Player p : plugin.getServer().getOnlinePlayers()) {
+			
 			if (!p.hasPermission("scavengerhunt.participate")) {
 				continue;
 			}
+			
+			if(!plugin.checkLocation(p.getLocation())){
+				continue;
+			}
+			
 			Inventory i = p.getInventory();
 			boolean hasItems = true;
 			for (ItemStack item : plugin.currentItems) {

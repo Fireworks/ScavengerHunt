@@ -19,11 +19,35 @@ mobs:
 # amount pairs will be chosen and used.
 numOfMobs: 0
 
+# To enable riddle mode. Riddle mode replace objectives with set messages.
+# If you enable this, make sure the riddles match up with each individual
+# objective.
+riddleMode: false
+
+# Put riddles here, if riddleMode enabled. Note that if quantity is important, 
+# that you specify that in the riddle (see riddle 2 in default config).
+riddles:
+  - "1. First riddle (e.g. I'm like stone, but cracked!)"
+  - "2. For example, for 10 of an item, you might want to put (10) at the end"
+  
+# ID - Amount - Data Value
 rewards:
   - 357 1
+
+# Set enable regions to true if player must be within region to win
+enableRegions: false
+regions:
+  - WorldName:RegionName
 
 # Runs for x seconds ; 0 to run until winner
 duration: 0 
 
 # Money awarded to winner (Must have Vault to use!)
 money: 0
+
+# Enable/disable short message mode (does not display items/rewards/riddles globally)
+shortMessageMode: false
+
+# Scheduler setting. See config page on dev bukkit. Default runs hourly.
+schedule: "0 * * * *"
+enableScheduler: true
