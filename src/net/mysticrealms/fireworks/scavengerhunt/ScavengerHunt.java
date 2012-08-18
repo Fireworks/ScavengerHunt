@@ -134,7 +134,7 @@ public class ScavengerHunt extends JavaPlugin {
 				
 				for (Map.Entry<EntityType, Integer> entry : currentMobs.entrySet()) {
 	
-					sender.sendMessage(ChatColor.GOLD + " * " + status.get(entry.getKey()) + "/" + entry.getValue() + " " + entry.getKey().getName().toLowerCase().replace("_", " "));
+					sender.sendMessage(ChatColor.GOLD + " * " + status.get(entry.getKey()) + "/" + entry.getValue() + " " + entry.getKey().toString().toLowerCase().replace("_", " "));
 				}
 			}
 		} else {
@@ -442,7 +442,7 @@ public class ScavengerHunt extends JavaPlugin {
 		if (!currentMobs.isEmpty() && !shortMessages && !riddleMode) {
 			getServer().broadcastMessage(ChatColor.DARK_RED + "You need to kill: ");
 			for (Map.Entry<EntityType, Integer> entry : currentMobs.entrySet()) {
-				getServer().broadcastMessage(ChatColor.GOLD + " * " + entry.getValue() + " " + entry.getKey().getName().toLowerCase().replace("_", " "));
+				getServer().broadcastMessage(ChatColor.GOLD + " * " + entry.getValue() + " " + entry.getKey().toString().toLowerCase().replace("_", " "));
 			}
 		}
 		isRunning = true;
