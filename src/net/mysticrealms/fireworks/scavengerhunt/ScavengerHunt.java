@@ -30,6 +30,7 @@ import org.bukkit.material.Wool;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.potion.Potion;
 
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.managers.RegionManager;
@@ -93,6 +94,8 @@ public class ScavengerHunt extends JavaPlugin {
 			return ((Wool) item.getData()).getColor().toString() + " wool";
 		} else if (item.getType() == Material.INK_SACK) {
 			return ((Dye) item.getData()).getColor().toString() + " dye";
+		} else if (item.getType() == Material.POTION){
+			return Potion.fromItemStack(item).getType().toString() + " potion";
 		} else {
 			return item.getType().toString();
 		}
@@ -224,7 +227,7 @@ public class ScavengerHunt extends JavaPlugin {
 				try {
 					final String[] parts = i.toString().split(" ");
 					final int mobQuantity = Integer.parseInt(parts[1]);
-					final EntityType mobName = EntityType.fromName(parts[0]);
+					final EntityType mobName = EntityType.valueOf(parts[0].toUpperCase());
 					mobs.put(mobName, mobQuantity);
 				} catch (Exception e) {
 					return false;
