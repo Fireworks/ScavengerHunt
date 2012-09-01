@@ -19,6 +19,12 @@ mobs:
 # amount pairs will be chosen and used.
 numOfMobs: 0
 
+# Regions a player must visit to win - COMING SOON
+#enableObjectiveLocations: false
+#objectiveLocations:
+# - WorldName:RegionName
+
+
 # To enable riddle mode. Riddle mode replace objectives with set messages.
 # If you enable this, make sure the riddles match up with each individual
 # objective.

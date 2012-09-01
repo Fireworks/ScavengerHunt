@@ -3,10 +3,13 @@ package net.mysticrealms.fireworks.scavengerhunt;
 import java.util.Map;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+
+import com.sk89q.worldedit.Vector;
 
 public class ScavengerInventory implements Runnable {
 	
@@ -26,6 +29,10 @@ public class ScavengerInventory implements Runnable {
 			return;
 		}
 		for (Player p : plugin.getServer().getOnlinePlayers()) {
+			/*
+			Location l = p.getLocation();
+			Vector v = new Vector(l.getX(), l.getY(), l.getZ());
+			*/
 			
 			if (!p.hasPermission("scavengerhunt.participate")) {
 				continue;
@@ -37,23 +44,39 @@ public class ScavengerInventory implements Runnable {
 			
 			Inventory i = p.getInventory();
 			boolean hasItems = true;
+
+		
 			for (ItemStack item : plugin.currentItems) {
 				if (plugin.count(i, item) < item.getAmount()) {
 					hasItems = false;
 				}
 			}
+			
 			Map<EntityType, Integer> usedEntities = plugin.getMap(p.getName());
+			
 			for (Map.Entry<EntityType, Integer> entry : plugin.currentMobs.entrySet()) {
 				if (entry.getValue() > usedEntities.get(entry.getKey())) {
 					hasItems = false;
 				}
 			}
+			
+			/*
+			if(plugin.wg != null && !plugin.currentRegions.isEmpty()){
+				
+				for (int j = 0 ; j < plugin.currentRegions.size(); j++)
+					if(!plugin.wg.getRegionManager(l.getWorld()).getApplicableRegionsIDs(v).contains(plugin.currentRegions.get(j))){
+						hasItems = false;
+						
+					}
+			}
+			*/
+			
 			if (hasItems) {
 				plugin.isRunning = false;
 				plugin.getServer().broadcastMessage(ChatColor.DARK_RED + "Congratulations to " + ChatColor.GOLD + p.getDisplayName() + ChatColor.DARK_RED + "!");
 				plugin.getServer().broadcastMessage(ChatColor.DARK_RED + "Prize was: ");
 				for (ItemStack reward : plugin.rewards) {
-					plugin.getServer().broadcastMessage(ChatColor.GOLD + plugin.configToString(reward));
+					plugin.getServer().broadcastMessage(ChatColor.GOLD + plugin.format.configToString(reward));
 					i.addItem(reward);
 				}
 				if (plugin.isUsingMoney()) {
