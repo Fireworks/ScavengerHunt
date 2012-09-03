@@ -29,16 +29,13 @@ public class ScavengerInventory implements Runnable {
 			return;
 		}
 		for (Player p : plugin.getServer().getOnlinePlayers()) {
-			/*
 			Location l = p.getLocation();
-			Vector v = new Vector(l.getX(), l.getY(), l.getZ());
-			*/
 			
 			if (!p.hasPermission("scavengerhunt.participate")) {
 				continue;
 			}
 			
-			if(!plugin.checkLocation(p.getLocation())){
+			if(!plugin.checkLocation(p.getLocation(), null)){
 				continue;
 			}
 			
@@ -60,16 +57,11 @@ public class ScavengerInventory implements Runnable {
 				}
 			}
 			
-			/*
-			if(plugin.wg != null && !plugin.currentRegions.isEmpty()){
-				
-				for (int j = 0 ; j < plugin.currentRegions.size(); j++)
-					if(!plugin.wg.getRegionManager(l.getWorld()).getApplicableRegionsIDs(v).contains(plugin.currentRegions.get(j))){
-						hasItems = false;
-						
-					}
+			for (int j = 0 ; j < plugin.currentRegions.size(); j++){
+				if(plugin.playerRegions.get(p).containsAll(plugin.currentRegions)){
+					
+				}
 			}
-			*/
 			
 			if (hasItems) {
 				plugin.isRunning = false;

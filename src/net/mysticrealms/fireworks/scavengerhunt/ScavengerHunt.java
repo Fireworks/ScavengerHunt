@@ -4,9 +4,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import net.milkbowl.vault.economy.Economy;
@@ -52,13 +54,13 @@ public class ScavengerHunt extends JavaPlugin {
 	public double money = 0;
 	public int numOfItems = 0;
 	public Map<String, Map<EntityType, Integer>> playerMobs = new ConcurrentHashMap<String, Map<EntityType, Integer>>();
-	public Map<String, List<ScavengerRegion>> playerRegions = new ConcurrentHashMap<String, List<ScavengerRegion>>();
+	public Map<String, Set<ScavengerRegion>> playerRegions = new ConcurrentHashMap<String, Set<ScavengerRegion>>();
 	public List<ItemStack> rewards = new ArrayList<ItemStack>();
 	public int numOfMobs;
 	public String schedule = "";
 	public String task;
 	public List<ScavengerRegion> activeRegions = new ArrayList<ScavengerRegion>();
-	public List<ScavengerRegion> currentRegions = new ArrayList<ScavengerRegion>();
+	public Set<ScavengerRegion> currentRegions = new HashSet<ScavengerRegion>();
 	public List<String> riddles = new ArrayList<String>();
 
 	public synchronized Map<EntityType, Integer> getMap(String s) {
@@ -204,7 +206,6 @@ public class ScavengerHunt extends JavaPlugin {
 
 		}
 
-		/*
 		if (config.isBoolean("enableObjectiveLocations")) {
 			enableObjLoc = config.getBoolean("enableObjectiveLocations");
 		} else {
@@ -224,7 +225,6 @@ public class ScavengerHunt extends JavaPlugin {
 		} else {
 			return false;
 		}
-		*/
 
 		if (config.isList("riddles")) {
 			for (String i : config.getStringList("riddles")) {
@@ -323,10 +323,23 @@ public class ScavengerHunt extends JavaPlugin {
 		return true;
 	}
 
-	public boolean checkLocation(Location l) {
-		if (enableRegions && wg != null && !activeRegions.isEmpty()) {
+	public boolean checkLocation(Location l, Player p) {
+		Set<ScavengerRegion> setValue = null;
+		if (p != null) {
+			
+			if (!playerRegions.containsKey(p.getName())) {
+				playerRegions.put(p.getName(), new HashSet<ScavengerRegion>());
+			}
+			setValue = playerRegions.get(p.getName());
+			
+		}
+
+		if (wg != null) {
 			RegionManager rm = wg.getRegionManager(l.getWorld());
 			for (ProtectedRegion pr : rm.getApplicableRegions(l)) {
+				if (setValue != null)
+					setValue.add(new ScavengerRegion(p.getWorld(), pr.getId()));
+
 				for (ScavengerRegion sr : activeRegions) {
 					if (sr.getWorld().equals(l.getWorld())) {
 						if (sr.getRegion().equalsIgnoreCase(pr.getId())) {
@@ -343,22 +356,26 @@ public class ScavengerHunt extends JavaPlugin {
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
-		if (cmd.getName().equalsIgnoreCase("scavengerstart")) {
+		if (cmd.getName().equalsIgnoreCase("scavenger") && args[0].length() == 0) {
+			sender.sendMessage(ChatColor.GOLD + "Current commands: " + ChatColor.DARK_RED + "/scavenger (start, stop, items, rewards, help, reload)");
+		}
+		if (cmd.getName().equalsIgnoreCase("scavenger") && args[0].equalsIgnoreCase("start")){
 			runScavengerEvent();
 		}
-		if (cmd.getName().equalsIgnoreCase("scavengerstop")) {
+		
+		if (cmd.getName().equalsIgnoreCase("scavengerstop") && args[0].equalsIgnoreCase("stop")) {
 			stopScavengerEvent();
 		}
-		if (cmd.getName().equalsIgnoreCase("scavengeritems")) {
+		if (cmd.getName().equalsIgnoreCase("scavengerstop") && args[0].equalsIgnoreCase("items")) {
 			listScavengerEventItems(sender);
 		}
-		if (cmd.getName().equalsIgnoreCase("scavengerrewards")) {
+		if (cmd.getName().equalsIgnoreCase("scavengerstop") && args[0].equalsIgnoreCase("rewards")) {
 			listScavengerEventRewards(sender);
 		}
-		if (cmd.getName().equalsIgnoreCase("scavengerhelp")) {
+		if (cmd.getName().equalsIgnoreCase("scavengerstop") && args[0].equalsIgnoreCase("help")) {
 			listHelp(sender);
 		}
-		if (cmd.getName().equalsIgnoreCase("scavengerreload")) {
+		if (cmd.getName().equalsIgnoreCase("scavengerstop") && args[0].equalsIgnoreCase("reload")) {
 			if (loadConfig()) {
 				sender.sendMessage(ChatColor.GOLD + "Config reloaded!");
 			} else {
@@ -412,11 +429,11 @@ public class ScavengerHunt extends JavaPlugin {
 		playerMobs.clear();
 		currentMobs.clear();
 		List<ItemStack> clone = new ArrayList<ItemStack>();
-		
+
 		for (ItemStack i : items) {
 			clone.add(i);
 		}
-		
+
 		Random r = new Random();
 		if (numOfItems <= 0) {
 			currentItems = clone;
@@ -425,9 +442,9 @@ public class ScavengerHunt extends JavaPlugin {
 				currentItems.add(clone.remove(r.nextInt(clone.size())));
 			}
 		}
-		
+
 		List<Map.Entry<EntityType, Integer>> mobClone = new ArrayList<Map.Entry<EntityType, Integer>>(mobs.entrySet());
-		
+
 		for (int i = 0; (numOfMobs <= 0 || i < numOfMobs) && !mobClone.isEmpty(); i++) {
 			Map.Entry<EntityType, Integer> entry = mobClone.remove(r.nextInt(mobClone.size()));
 			currentMobs.put(entry.getKey(), entry.getValue());

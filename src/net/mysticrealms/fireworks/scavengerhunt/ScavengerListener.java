@@ -22,7 +22,7 @@ public class ScavengerListener implements Listener {
 	@EventHandler
 	public void onEntityDeath(EntityDeathEvent event) {
 		
-		if(!plugin.checkLocation(event.getEntity().getLocation())){
+		if(!plugin.checkLocation(event.getEntity().getLocation(), null)){
 			return;
 		}
 		
