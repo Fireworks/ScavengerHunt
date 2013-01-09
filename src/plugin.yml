@@ -6,29 +6,11 @@ softdepend: ['Vault']
 main: net.mysticrealms.fireworks.scavengerhunt.ScavengerHunt
 
 commands:
-  scavengerstart:
-    usage: /scavengerstart
-    description: Start scavenger event.
-    permission: scavengerhunt.start
-  scavengerstop:
-    usage: /scavengerstop
-    description: Stop scavenger event.
-    permission: scavengerhunt.stop
-  scavengeritems:
-    usage: /scavengeritems
-    description: List scavenger items.
-    permission: scavengerhunt.items
-  scavengerrewards:
-    usage: /scavengerrewards
-    description: List scavenger rewards.
-    permission: scavengerhunt.rewards
-  scavengerreload:
-    usage: /scavengerreload
-    description: Reload configuration.
-    permission: scavengerhunt.reload
-  scavengerhelp:
-    usage: /scavengerhelp
-    description: Displays help menu.
+  scavenger:
+    usage: /scavenger <command>
+    description: Master command
+    aliases: sh
+    permission: scavengerhunt.participate
 
 permissions:
   scavengerhunt.start:

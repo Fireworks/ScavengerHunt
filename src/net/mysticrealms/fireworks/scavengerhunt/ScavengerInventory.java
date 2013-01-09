@@ -1,15 +1,13 @@
 package net.mysticrealms.fireworks.scavengerhunt;
 
 import java.util.Map;
+import java.util.Set;
 
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-
-import com.sk89q.worldedit.Vector;
 
 public class ScavengerInventory implements Runnable {
 	
@@ -29,14 +27,18 @@ public class ScavengerInventory implements Runnable {
 			return;
 		}
 		for (Player p : plugin.getServer().getOnlinePlayers()) {
-			Location l = p.getLocation();
-			
+		
 			if (!p.hasPermission("scavengerhunt.participate")) {
 				continue;
 			}
 			
-			if(!plugin.checkLocation(p.getLocation(), null)){
+			if(!plugin.checkLocation(p.getLocation(), p)){
 				continue;
+			}
+			
+			Set<ScavengerRegion> regionsClone = plugin.playerRegions.get(p);
+			if(!regionsClone.containsAll(plugin.currentRegions)){
+				return;
 			}
 			
 			Inventory i = p.getInventory();
@@ -57,11 +59,7 @@ public class ScavengerInventory implements Runnable {
 				}
 			}
 			
-			for (int j = 0 ; j < plugin.currentRegions.size(); j++){
-				if(plugin.playerRegions.get(p).containsAll(plugin.currentRegions)){
-					
-				}
-			}
+
 			
 			if (hasItems) {
 				plugin.isRunning = false;

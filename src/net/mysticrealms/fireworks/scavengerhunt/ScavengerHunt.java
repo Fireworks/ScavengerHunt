@@ -61,6 +61,7 @@ public class ScavengerHunt extends JavaPlugin {
 	public String task;
 	public List<ScavengerRegion> activeRegions = new ArrayList<ScavengerRegion>();
 	public Set<ScavengerRegion> currentRegions = new HashSet<ScavengerRegion>();
+	public String[] objLoc;
 	public List<String> riddles = new ArrayList<String>();
 
 	public synchronized Map<EntityType, Integer> getMap(String s) {
@@ -85,11 +86,11 @@ public class ScavengerHunt extends JavaPlugin {
 
 	public void listHelp(CommandSender sender) {
 		sender.sendMessage(ChatColor.DARK_RED + "== Scavenger Help Guide ==");
-		sender.sendMessage(ChatColor.GOLD + " * /scavengerItems - List items/objectives for current scavenger event.");
-		sender.sendMessage(ChatColor.GOLD + " * /scavengerRewards - List rewards for the winner.");
-		sender.sendMessage(ChatColor.DARK_GREEN + " * /scavengerStart - Start a scavenger event.");
-		sender.sendMessage(ChatColor.DARK_GREEN + " * /scavengerStop - End current scavenger vent.");
-		sender.sendMessage(ChatColor.DARK_GREEN + " * /scavengerReload - Reload the config.");
+		sender.sendMessage(ChatColor.GOLD + " * /sh items - List items/objectives for current scavenger event.");
+		sender.sendMessage(ChatColor.GOLD + " * /sh rewards - List rewards for the winner.");
+		sender.sendMessage(ChatColor.DARK_GREEN + " * /sh start - Start a scavenger event.");
+		sender.sendMessage(ChatColor.DARK_GREEN + " * /sh stop - End current scavenger vent.");
+		sender.sendMessage(ChatColor.DARK_GREEN + " * /sh reload - Reload the config.");
 	}
 
 	public void listScavengerEventItems(CommandSender sender) {
@@ -119,6 +120,17 @@ public class ScavengerHunt extends JavaPlugin {
 					sender.sendMessage(ChatColor.GOLD + " * " + status.get(entry.getKey()) + "/" + entry.getValue() + " " + entry.getKey().toString().toLowerCase().replace("_", " "));
 				}
 			}
+			if (!currentRegions.isEmpty() && !riddleMode) {
+				sender.sendMessage(ChatColor.DARK_RED + "You need to visit (red means visited): ");
+				checkLocation(p.getLocation(), p);
+				for (ScavengerRegion sr : currentRegions) {
+					if (playerRegions.get(p.getName()).contains(sr)) {
+						sender.sendMessage(ChatColor.GOLD + " * " + ChatColor.DARK_RED + sr.getName());
+					} else {
+						sender.sendMessage(ChatColor.GOLD + " * " + ChatColor.GOLD + sr.getName());
+					}
+				}
+			}
 		} else {
 			sender.sendMessage(ChatColor.GOLD + "No scavenger event is currently running.");
 		}
@@ -140,6 +152,7 @@ public class ScavengerHunt extends JavaPlugin {
 		rewards.clear();
 		mobs.clear();
 		activeRegions.clear();
+		currentRegions.clear();
 		riddles.clear();
 
 		if (task != null) {
@@ -214,12 +227,19 @@ public class ScavengerHunt extends JavaPlugin {
 
 		if (config.isList("objectiveLocations")) {
 			for (String i : config.getStringList("objectiveLocations")) {
-				String[] objLoc = i.split(":");
+				objLoc = i.split(":");
 				if (objLoc.length == 2) {
 					World w = this.getServer().getWorld(objLoc[0]);
 					if (w != null) {
 						currentRegions.add(new ScavengerRegion(w, objLoc[1]));
 					}
+				}
+
+				if (objLoc.length == 3) {
+
+					World w = this.getServer().getWorld(objLoc[0]);
+					if (w != null)
+						currentRegions.add(new ScavengerRegion(w, objLoc[1], objLoc[2]));
 				}
 			}
 		} else {
@@ -286,6 +306,7 @@ public class ScavengerHunt extends JavaPlugin {
 						items.add(new ItemStack(intParts[0], intParts[1]));
 					} else if (parts.length == 3) {
 						items.add(new ItemStack(intParts[0], intParts[1], (short) intParts[2]));
+						System.out.println();
 					}
 				} else {
 					return false;
@@ -326,12 +347,12 @@ public class ScavengerHunt extends JavaPlugin {
 	public boolean checkLocation(Location l, Player p) {
 		Set<ScavengerRegion> setValue = null;
 		if (p != null) {
-			
+
 			if (!playerRegions.containsKey(p.getName())) {
 				playerRegions.put(p.getName(), new HashSet<ScavengerRegion>());
 			}
 			setValue = playerRegions.get(p.getName());
-			
+
 		}
 
 		if (wg != null) {
@@ -339,7 +360,6 @@ public class ScavengerHunt extends JavaPlugin {
 			for (ProtectedRegion pr : rm.getApplicableRegions(l)) {
 				if (setValue != null)
 					setValue.add(new ScavengerRegion(p.getWorld(), pr.getId()));
-
 				for (ScavengerRegion sr : activeRegions) {
 					if (sr.getWorld().equals(l.getWorld())) {
 						if (sr.getRegion().equalsIgnoreCase(pr.getId())) {
@@ -356,33 +376,41 @@ public class ScavengerHunt extends JavaPlugin {
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
-		if (cmd.getName().equalsIgnoreCase("scavenger") && args[0].length() == 0) {
+		if (cmd.getName().equalsIgnoreCase("scavenger") && args.length == 0) {
 			sender.sendMessage(ChatColor.GOLD + "Current commands: " + ChatColor.DARK_RED + "/scavenger (start, stop, items, rewards, help, reload)");
-		}
-		if (cmd.getName().equalsIgnoreCase("scavenger") && args[0].equalsIgnoreCase("start")){
-			runScavengerEvent();
+			return true;
 		}
 		
-		if (cmd.getName().equalsIgnoreCase("scavengerstop") && args[0].equalsIgnoreCase("stop")) {
+		if (cmd.getName().equalsIgnoreCase("scavenger") && args[0].equalsIgnoreCase("start") && sender.hasPermission("scavengerhunt.start")) {
+			runScavengerEvent();
+			return true;
+		}
+
+		if (cmd.getName().equalsIgnoreCase("scavenger") && args[0].equalsIgnoreCase("stop") && sender.hasPermission("scavengerhunt.stop")) {
 			stopScavengerEvent();
+			return true;
 		}
-		if (cmd.getName().equalsIgnoreCase("scavengerstop") && args[0].equalsIgnoreCase("items")) {
+		if (cmd.getName().equalsIgnoreCase("scavenger") && args[0].equalsIgnoreCase("items") && sender.hasPermission("scavengerhunt.items")) {
 			listScavengerEventItems(sender);
+			return true;
 		}
-		if (cmd.getName().equalsIgnoreCase("scavengerstop") && args[0].equalsIgnoreCase("rewards")) {
+		if (cmd.getName().equalsIgnoreCase("scavenger") && args[0].equalsIgnoreCase("rewards") && sender.hasPermission("scavengerhunt.rewards")) {
 			listScavengerEventRewards(sender);
+			return true;
 		}
-		if (cmd.getName().equalsIgnoreCase("scavengerstop") && args[0].equalsIgnoreCase("help")) {
+		if (cmd.getName().equalsIgnoreCase("scavenger") && args[0].equalsIgnoreCase("help")) {
 			listHelp(sender);
+			return true;
 		}
-		if (cmd.getName().equalsIgnoreCase("scavengerstop") && args[0].equalsIgnoreCase("reload")) {
+		if (cmd.getName().equalsIgnoreCase("scavenger") && args[0].equalsIgnoreCase("reload") && sender.hasPermission("scavengerhunt.reload")) {
 			if (loadConfig()) {
 				sender.sendMessage(ChatColor.GOLD + "Config reloaded!");
 			} else {
 				sender.sendMessage(ChatColor.GOLD + "Config failed to reload!");
 			}
+			return true;
 		}
-		return true;
+		return false;
 	}
 
 	@Override
@@ -423,11 +451,10 @@ public class ScavengerHunt extends JavaPlugin {
 	}
 
 	public void runScavengerEvent() {
-		String mobString = mobs.toString();
-		System.out.println(mobString);
 		currentItems.clear();
 		playerMobs.clear();
 		currentMobs.clear();
+
 		List<ItemStack> clone = new ArrayList<ItemStack>();
 
 		for (ItemStack i : items) {
@@ -449,6 +476,7 @@ public class ScavengerHunt extends JavaPlugin {
 			Map.Entry<EntityType, Integer> entry = mobClone.remove(r.nextInt(mobClone.size()));
 			currentMobs.put(entry.getKey(), entry.getValue());
 		}
+		
 		getServer().broadcastMessage(ChatColor.DARK_RED + "Scavenger Hunt is starting! Good luck!");
 		if (duration > 0) {
 			getServer().broadcastMessage(ChatColor.DARK_RED + "You have: " + ChatColor.GOLD + duration + " seconds!");
@@ -478,6 +506,14 @@ public class ScavengerHunt extends JavaPlugin {
 				getServer().broadcastMessage(ChatColor.GOLD + " * " + entry.getValue() + " " + entry.getKey().toString().toLowerCase().replace("_", " "));
 			}
 		}
+
+		if (!shortMessages && !riddleMode && !currentRegions.isEmpty() && enableObjLoc) {
+			getServer().broadcastMessage(ChatColor.DARK_RED + "You need to visit: ");
+			for (ScavengerRegion sr : currentRegions) {
+				getServer().broadcastMessage(ChatColor.GOLD + " * " + sr.getName());
+			}
+		}
+
 		isRunning = true;
 		if (duration == 0) {
 			end = 0;
